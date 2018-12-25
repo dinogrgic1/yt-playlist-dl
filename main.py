@@ -1,32 +1,47 @@
-import tkinter as tk
+import os
+import time
+import youtube_dl
 
-class Application(tk.Frame):
-  def say_welcome(self):
-    print('Welcome!')
+playlist = # INSERT YOUR PLAYLIST HERE
 
-  # example of creating a widget
-  def createWidgets(self):
-    self.label = tk.Label(self, anchor='w')
-    self.label["text"] = 'URL:'
-    self.label.grid(row=0)
 
-    self.input = tk.Entry(self)
-    self.input.grid(row=0, column=1)
+# klasa za logganje downloada
+class MyLogger(object):
+    def debug(self, msg):
+        pass
+
+    def warning(self, msg):
+        pass
+
+    def error(self, msg):
+        print(msg)
+
+def my_hook(d):
+    if d['status'] == 'finished':
+        print('Preuzimanje zavrseno, prebacivanje u mp3...')
+    if d['status'] == 'downloading':
+        # (TODO) : progress bar
+        pass
     
-    self.btn_search = tk.Button(self)
-    self.btn_search["text"] = 'Search'
-    self.btn_search.grid(row=0, column=2)
+# opcije za skidanje pjesama
+ydl_opts = {
+    'playlist': True,
+    'format': 'bestaudio/best',
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '192',
+    }],
+    'outtmpl': '/pjesme/%(title)s.%(ext)s',
+    'logger': MyLogger(),
+    'progress_hooks': [my_hook]
+}
+
+if __name__ == '__main__':
+    lista = [playlist]
+    print('Started downloading : ', lista[0])
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.download(lista)
 
 
-  # application initilisation function
-  def __init__(self, master=None):
-    tk.Frame.__init__(self, master)
-    self.pack()             # geometry-managment mechanisam
-    self.createWidgets()
 
-root = tk.Tk()
-app = Application(master=root)
-app.master.title('YT Playlist Download')
-app.master.geometry('800x600')
-app.mainloop()
-root.destroy()
